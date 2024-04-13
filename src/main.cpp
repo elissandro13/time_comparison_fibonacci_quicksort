@@ -8,6 +8,7 @@
 #include <random>
 #include <chrono>
 #include <thread>
+#include <algorithm>
 
 
 
@@ -20,6 +21,7 @@ using std::chrono::steady_clock;
 using namespace std::chrono_literals;
 
 
+
 // Função para trocar elementos no vetor
 void swap(int *a, int *b) {
     int temp = *a;
@@ -27,12 +29,12 @@ void swap(int *a, int *b) {
     *b = temp;
 }
 
+
 //Função de Inserção quer será utilizada em vetores de tamnho <= 30
-void insertionSort(vector<int>& arr) {
-    int n = arr.size();
+void insertionSort(vector<int>& arr, int low, int high) {
 
     // Percorrendo o vetor
-    for (int i = 1; i < n; i++) {
+    for (int i = low+1; i <= high; i++) {
         // Elemento atual (chave)
         int key = arr[i];
 
@@ -81,19 +83,23 @@ int partition(vector<int>& arr, int low, int high) {
 
 void QuicksortRecursivoOrdenacaoInsercao(vector<int>& arr, int low, int high) {
 
-    if (high - low + 1 <= 30) {
-        insertionSort(arr);
-    }
-    else {
-        // Encontrando a partição
-        int pi = partition(arr, low, high);
 
-        // Ordenando a sublista antes da partição
-        QuicksortRecursivoOrdenacaoInsercao(arr, low, pi - 1);
+    if(low < high) {
+        if (high - low <= 30) {
+            //cout << "entrou " << arr.size() << "conta " << high << " " << low << endl;
+            insertionSort(arr, low, high);
+        } else {
+            // Encontrando a partição
+            int pi = partition(arr, low, high);
 
-        // Ordenando a sublista depois da partição
-        QuicksortRecursivoOrdenacaoInsercao(arr, pi + 1, high);
+            // Ordenando a sublista antes da partição
+            QuicksortRecursivoOrdenacaoInsercao(arr, low, pi - 1);
+
+            // Ordenando a sublista depois da partição
+            QuicksortRecursivoOrdenacaoInsercao(arr, pi + 1, high);
+        }
     }
+
 }
 
 
@@ -123,7 +129,7 @@ void QuicksortNaoRecursivoOrdenacaoInsercao(vector<int>& arr, int low, int high)
         if (high - low + 1 <= 30) {
 
             // Usar Insertion Sort pra ordenar particçõess menores
-            insertionSort(arr);
+            insertionSort(arr, low, high);
 
         }
             // Se a sublista tiver mais de um elemento
@@ -222,6 +228,22 @@ void printArray(vector<int>& arr) {
     cout << endl;
 }
 
+void printEstatiscaDados(vector<double> v, string str) {
+
+    double sum = std::accumulate(std::begin(v), std::end(v), 0.0);
+    double m =  sum / v.size();
+
+    double accum = 0.0;
+    std::for_each (std::begin(v), std::end(v), [&](const double d) {
+        accum += (d - m) * (d - m);
+    });
+
+    double stdev = sqrt(accum / (v.size()));
+
+    cout << "Dados da função " << str << " Média (ms): " << m << " Desvio Padrão (ms): " << stdev << endl;
+
+};
+
 int main() {
 
 //    Declarando o vetor
@@ -250,45 +272,101 @@ int main() {
 //    //vector<int> arrQuicksortNaoRecursivoPuro = QuicksortNaoRecursivoPuro(arr);
 //   // printArray(arrQuicksortNaoRecursivoPuro);
 
-    vector<vector<int>> dataSet;
+    vector<int> dataSet[50];
 
-    vector<int> tmp;
+    //vector<int> tmp;
+    //int dataSet[50][10000];
     for (int i = 0; i < 50; ++i) {
-        for (int j = 0; j < 10000; ++j) {
+        for (int j = 0; j < 200000; ++j) {
             std::random_device seed;
             std::mt19937 gen{seed()}; // Seed do gerador
             std::uniform_int_distribution<> dist{0, 65000}; // Limite dos números
             int x = dist(gen); // Gerador
-            tmp.push_back(x);
+            dataSet[i].push_back(x);
         }
-        dataSet.push_back(tmp);
+        //dataSet.push_back(tmp);
     }
+
+    vector<double> results_recursivo_puro;
+    vector<double> results_recursivo_ins;
+    vector<double> results_iterativo_puro;
+    vector<double> results_iterativo_ins;
+
+    for (int i = 0; i < 50; ++i) {
+
+        cout << "Interação " << i << endl;
+
+        auto t1_recursivo_puro = high_resolution_clock::now();
+        vector<int> arrRetorno = QuicksortRecursivoPuro(dataSet[i]);
+        auto t2_recursivo_puro = high_resolution_clock::now();
+        duration<double, std::milli> ms_double = t2_recursivo_puro - t1_recursivo_puro;
+        results_recursivo_puro.push_back(ms_double.count());
+
+
+        auto t1_results_recursivo_ins = high_resolution_clock::now();
+        vector<int> arrRetorno2 = QuicksortRecursivoOrdenacaoInsercao(dataSet[i]);
+        auto t2_results_recursivo_ins = high_resolution_clock::now();
+        duration<double, std::milli> ms_double2 = t2_results_recursivo_ins - t1_results_recursivo_ins;
+        results_recursivo_ins.push_back(ms_double2.count());
+
+
+        auto t1_results_iterativo_puro = high_resolution_clock::now();
+        vector<int> arrRetorno3 = QuicksortNaoRecursivoPuro(dataSet[i]);
+        auto t2_results_iterativo_puro = high_resolution_clock::now();
+        duration<double, std::milli> ms_double3 = t2_results_iterativo_puro - t1_results_iterativo_puro;
+        results_iterativo_puro.push_back(ms_double3.count());
+
+
+        auto t1_results_iterativo_ins = high_resolution_clock::now();
+        vector<int> arrRetorno4 = QuicksortNaoRecursivoOrdenacaoInsercao(dataSet[i]);
+        auto t2_results_iterativo_ins = high_resolution_clock::now();
+        duration<double, std::milli> ms_double4 = t2_results_iterativo_ins - t1_results_iterativo_ins;
+        results_iterativo_ins.push_back(ms_double4.count());
+
+    }
+
+    printEstatiscaDados(results_recursivo_puro, "QuicksortRecursivoPuro");
+    printEstatiscaDados(results_recursivo_ins, "QuicksortRecursivoOrdenacaoInsercao");
+    printEstatiscaDados(results_iterativo_puro, "QuicksortNaoRecursivoPuro");
+    printEstatiscaDados(results_iterativo_ins, "QuicksortNaoRecursivoOrdenacaoInsercao");
+
+
+
+    return 0;
 
     //printArray(dataSet[0]);
 
 
-    vector<duration<double, std::milli>> resul;
+    //vector<duration<double, std::milli>> resul;
+
+
+//    for (int i = 0; i < 50; ++i) {
+//
+//        cout << i << "tamanhho " << dataSet[i].size() << endl;
+//
+//    }
+//    cout << "------------------";
 
     for (int i = 0; i < 50; ++i) {
 
-        auto t1 = steady_clock::now();
 
-        vector<int> arrRetorno = QuicksortRecursivoPuro(dataSet[i]);
+        //auto t1 = steady_clock::now();
 
-        //using namespace std::chrono_literals;
-        //std::this_thread::sleep_for(150ms);
+        vector<int> arrRetorno = QuicksortNaoRecursivoOrdenacaoInsercao(dataSet[i]);
+        if(i == 0) printArray(arrRetorno);
 
-        auto t2 = steady_clock::now();
 
-        duration<double, std::milli> ms_double = t2 - t1;
+        //auto t2 = steady_clock::now();
 
-        resul.push_back(ms_double);
+        //duration<double, std::milli> ms_double = t2 - t1;
+
+        //resul.push_back(ms_double);
     }
 
+    return 0;
+    for (int i = 0; i < 10; ++i) {
 
-    for (int i = 0; i < 50; ++i) {
-
-        cout << resul[i].count() << "," << endl;
+        //cout << resul[i].count() << "," << endl;
     }
 
     return 0;
