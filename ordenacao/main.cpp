@@ -7,7 +7,6 @@
 #include <stack>
 #include <random>
 #include <chrono>
-#include <thread>
 #include <algorithm>
 
 
@@ -86,7 +85,6 @@ void QuicksortRecursivoOrdenacaoInsercao(vector<int>& arr, int low, int high) {
 
     if(low < high) {
         if (high - low <= 30) {
-            //cout << "entrou " << arr.size() << "conta " << high << " " << low << endl;
             insertionSort(arr, low, high);
         } else {
             // Encontrando a partição
@@ -230,61 +228,33 @@ void printArray(vector<int>& arr) {
 
 void printEstatiscaDados(vector<double> v, string str) {
 
-    double sum = std::accumulate(std::begin(v), std::end(v), 0.0);
-    double m =  sum / v.size();
+    double sum = std::accumulate(std::begin(v), std::end(v), 0.0); // Soma Total
+    double m =  sum / v.size(); // Média
 
     double accum = 0.0;
     std::for_each (std::begin(v), std::end(v), [&](const double d) {
-        accum += (d - m) * (d - m);
+        accum += (d - m) * (d - m); // Soma dos valores v[i] ^ 2 - media ^ 2
     });
 
-    double stdev = sqrt(accum / (v.size()));
+    double stdev = sqrt(accum / (v.size())); // Devio padrão = Raiz quadrada de ((Soma dos valores v[i] ^ 2 - media ^ 2) / número de elementos)
 
-    cout << "Dados da função " << str << " Média (ms): " << m << " Desvio Padrão (ms): " << stdev << endl;
+    cout << "Dados da função " << str << " Média (ms): " << m << " Desvio Padrão (ms): " << stdev << endl; // Saída em Milissegundos
 
 };
 
 int main() {
 
-//    Declarando o vetor
-//    vector<int> arr = {8, 7, 2, 1, 0, 9, 62, 82, 72, 22, 12, 02, 92, 63,83, 73, 23, 13, 03, 93, 64,84, 74, 24, 14, 04, 194, 164, 103, 193, 164,184, 174, 124, 114, 104, 114, 164};
-//
-//    vector<int> arrQuicksortNaoRecursivoOrdenacaoInsercao = QuicksortNaoRecursivoOrdenacaoInsercao(arr);
-//    printArray(arrQuicksortNaoRecursivoOrdenacaoInsercao);
-//
-//    vector<int> arrQuicksortNaoRecursivoPuro = QuicksortNaoRecursivoPuro(arr);
-//    printArray(arrQuicksortNaoRecursivoPuro);
-//    return 0;
-//
-//    // Ordenando o vetor e armazenando o resultado em uma nova variável
-//    vector<int> arrQuicksortRecursivoPuro = QuicksortRecursivoPuro(arr);
-//    printArray(arrQuicksortRecursivoPuro);
-//
-//
-//    vector<int> arrQuicksortRecursivoOrdenacaoInsercao = QuicksortRecursivoOrdenacaoInsercao(arr);
-//    printArray(arrQuicksortRecursivoOrdenacaoInsercao);
-//
-//    //vector<int> arrQuicksortNaoRecursivoOrdenacaoInsercao = QuicksortNaoRecursivoOrdenacaoInsercao(arr);
-//    //printArray(arrQuicksortNaoRecursivoOrdenacaoInsercao);
-//    cout << "size" << arr.size();
-//
-//    return 0;
-//    //vector<int> arrQuicksortNaoRecursivoPuro = QuicksortNaoRecursivoPuro(arr);
-//   // printArray(arrQuicksortNaoRecursivoPuro);
-
     vector<int> dataSet[50];
 
-    //vector<int> tmp;
-    //int dataSet[50][10000];
     for (int i = 0; i < 50; ++i) {
-        for (int j = 0; j < 200000; ++j) {
+        for (int j = 0; j < 300000; ++j) {
             std::random_device seed;
             std::mt19937 gen{seed()}; // Seed do gerador
             std::uniform_int_distribution<> dist{0, 65000}; // Limite dos números
             int x = dist(gen); // Gerador
-            dataSet[i].push_back(x);
+            dataSet[i].push_back(x); // Adição do número ao dataSet em I
         }
-        //dataSet.push_back(tmp);
+
     }
 
     vector<double> results_recursivo_puro;
@@ -334,79 +304,4 @@ int main() {
 
     return 0;
 
-    //printArray(dataSet[0]);
-
-
-    //vector<duration<double, std::milli>> resul;
-
-
-//    for (int i = 0; i < 50; ++i) {
-//
-//        cout << i << "tamanhho " << dataSet[i].size() << endl;
-//
-//    }
-//    cout << "------------------";
-
-    for (int i = 0; i < 50; ++i) {
-
-
-        //auto t1 = steady_clock::now();
-
-        vector<int> arrRetorno = QuicksortNaoRecursivoOrdenacaoInsercao(dataSet[i]);
-        if(i == 0) printArray(arrRetorno);
-
-
-        //auto t2 = steady_clock::now();
-
-        //duration<double, std::milli> ms_double = t2 - t1;
-
-        //resul.push_back(ms_double);
-    }
-
-    return 0;
-    for (int i = 0; i < 10; ++i) {
-
-        //cout << resul[i].count() << "," << endl;
-    }
-
-    return 0;
-    //printArray(arrQuicksortNaoRecursivoOrdenacaoInsercao);
-    cout << "________________________________________________________________________" << endl;
-
-    return 0;
-
-    vector<int> arrQuicksortNaoRecursivoPuro = QuicksortNaoRecursivoPuro(dataSet[0]);
-    printArray(arrQuicksortNaoRecursivoPuro);
-    cout << "________________________________________________________________________" << endl;
-
-    vector<int> arrQuicksortRecursivoPuro = QuicksortRecursivoPuro(dataSet[0]);
-    printArray(arrQuicksortRecursivoPuro);
-    cout << "________________________________________________________________________" << endl;
-
-
-    vector<int> arrQuicksortRecursivoOrdenacaoInsercao = QuicksortRecursivoOrdenacaoInsercao(dataSet[0]);
-    printArray(arrQuicksortRecursivoOrdenacaoInsercao);
-    cout << "________________________________________________________________________" << endl;
-
-
-//    auto t1 = high_resolution_clock::now();
-//    long_operation();
-//    auto t2 = high_resolution_clock::now();
-//
-//    /* Getting number of milliseconds as an integer. */
-//    auto ms_int = duration_cast<milliseconds>(t2 - t1);
-//
-//    /* Getting number of milliseconds as a double. */
-//    duration<double, std::milli> ms_double = t2 - t1;
-//
-//    std::cout << ms_int.count() << "ms\n";
-//    std::cout << ms_double.count() << "ms\n";
-
-
-    cout << "size" << dataSet[0].size();
-
-
-
-
-    return 0;
 }
